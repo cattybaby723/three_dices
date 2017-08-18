@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="default_dice_size">60dp</dimen>
+    <dimen name="default_dice_margin">15dp</dimen>
+    <dimen name="frequency_chart_padding">5dp</dimen>
+</resources>
