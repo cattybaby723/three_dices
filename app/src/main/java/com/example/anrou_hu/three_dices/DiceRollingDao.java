@@ -18,11 +18,12 @@ public interface DiceRollingDao {
     @Insert (onConflict = OnConflictStrategy.REPLACE)
     void save(DiceRollingResult diceRollingResult);
 
-//    @Query("SELECT * FROM diceRollingResult GROUP BY totalPoint")
-//    LiveData<List<DiceRollingResult>> load();
+
+    @Query("SELECT * FROM diceRollingResult GROUP BY totalPoint")
+    LiveData<List<DiceRollingResult>> load();
 
 
     @Query("SELECT * FROM diceRollingResult Group By totalPoint")
-    List<DiceRollingResult> load();
+    List<DiceRollingResult> loadSync();
 
 }

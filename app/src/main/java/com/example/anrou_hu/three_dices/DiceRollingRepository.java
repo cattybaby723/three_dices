@@ -15,10 +15,6 @@ import java.util.concurrent.Executor;
 
 public class DiceRollingRepository implements Executor {
 
-    interface Callback {
-        void onResultLoaded(Object data);
-    }
-
     private Application mApplication;
     private AppDatabase mDatabase;
 
@@ -33,14 +29,9 @@ public class DiceRollingRepository implements Executor {
 
 
 
-    public void getResult(final Callback callback) {
-        execute(new Runnable() {
-            @Override
-            public void run() {
-                List<DiceRollingResult> resultList = mDatabase.diceRollingDao().load();
-                callback.onResultLoaded(resultList);
-            }
-        });
+    public LiveData<List<DiceRollingResult>> getResult() {
+
+        return mDatabase.diceRollingDao().load();
     }
 
 

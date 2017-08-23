@@ -4,8 +4,6 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleActivity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.arch.persistence.room.Room;
-import android.content.Context;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -81,6 +79,8 @@ public class MainActivity extends LifecycleActivity implements View.OnClickListe
                 mAdapter.notifyDataSetChanged();
             }
         });
+
+        mViewModel.observeDbData();
     }
 
     private void updateDicePoints(int[] dicePoints) {

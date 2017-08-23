@@ -5,8 +5,11 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.OnLifecycleEvent;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.util.List;
@@ -15,14 +18,14 @@ import java.util.List;
  * @author anrou_hu
  */
 
-public class MainViewModel extends AndroidViewModel implements LifecycleObserver, AsyncTaskCallback, DiceRollingRepository.Callback {
+public class MainViewModel extends AndroidViewModel implements LifecycleObserver, AsyncTaskCallback {
 
     private final static int DICE_COUNT = 3;
 
     private MutableLiveData<Integer> mTotalPoint = new MutableLiveData<>();
     private MutableLiveData<int[]> mDicePoints = new MutableLiveData<int[]>() {
     };
-    private MutableLiveData<List<DiceRollingResult>> mDiceRollingResultList;
+    private MediatorLiveData<List<DiceRollingResult>> mDiceRollingResultList;
 
     private DiceRollingRepository mDiceRollingRepo;
 
@@ -61,7 +64,7 @@ public class MainViewModel extends AndroidViewModel implements LifecycleObserver
 
     public LiveData<List<DiceRollingResult>> getDiceRollingResultList() {
         if (mDiceRollingResultList == null) {
-            mDiceRollingResultList = new MutableLiveData<>();
+            mDiceRollingResultList = new MediatorLiveData<>();
         }
         return mDiceRollingResultList;
     }
@@ -80,8 +83,15 @@ public class MainViewModel extends AndroidViewModel implements LifecycleObserver
 
         int totalPoint = calculateTotalPoint(diceList);
         mTotalPoint.setValue(totalPoint);
+    }
 
-        mDiceRollingRepo.getResult(this);
+    public void observeDbData() {
+        mDiceRollingResultList.addSource(mDiceRollingRepo.getResult(), new Observer<List<DiceRollingResult>>() {
+            @Override
+            public void onChanged(@Nullable List<DiceRollingResult> diceRollingResults) {
+                mDiceRollingResultList.setValue(diceRollingResults);
+            }
+        });
     }
 
     public int calculateTotalPoint(int[] diceList) {
@@ -90,11 +100,5 @@ public class MainViewModel extends AndroidViewModel implements LifecycleObserver
             totalPoint += dicePoint;
         }
         return totalPoint;
-    }
-
-
-    @Override
-    public void onResultLoaded(Object data) {
-        mDiceRollingResultList.postValue((List<DiceRollingResult>) data);
     }
 }
