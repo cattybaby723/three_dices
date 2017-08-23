@@ -1,11 +1,12 @@
 package com.example.anrou_hu.three_dices;
 
+import android.app.Application;
+import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.OnLifecycleEvent;
-import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 
 import java.util.List;
@@ -14,42 +15,27 @@ import java.util.List;
  * @author anrou_hu
  */
 
-public class MainViewModel extends ViewModel implements LifecycleObserver, AsyncTaskCallback {
+public class MainViewModel extends AndroidViewModel implements LifecycleObserver, AsyncTaskCallback, DiceRollingRepository.Callback {
 
     private final static int DICE_COUNT = 3;
 
     private MutableLiveData<Integer> mTotalPoint = new MutableLiveData<>();
-    private MutableLiveData<int[]> mDicePoints = new MutableLiveData<int[]>() {};
+    private MutableLiveData<int[]> mDicePoints = new MutableLiveData<int[]>() {
+    };
+    private MutableLiveData<List<DiceRollingResult>> mDiceRollingResultList;
+
+    private DiceRollingRepository mDiceRollingRepo;
 
 
+    public MainViewModel(Application application) {
+        super(application);
+        mDiceRollingRepo = new DiceRollingRepository(getApplication());
 
-    public LiveData<int[]> getDicePoints() {
-        return mDicePoints;
+        initDb();
     }
 
-
-    void rollDices() {
-        DiceRollingAsyncTask task = new DiceRollingAsyncTask(this, DICE_COUNT);
-        task.execute();
-    }
-
-
-
-    @Override
-    public void processFinish(Object result) {
-        int[] diceList = (int[]) result;
-        mDicePoints.setValue(diceList);
-
-        int totalPoint = calculateTotalPoint(diceList);
-        mTotalPoint.setValue(totalPoint);
-    }
-
-    private int calculateTotalPoint(int[] diceList) {
-        int totalPoint = 0;
-        for (int dicePoint : diceList) {
-            totalPoint += dicePoint;
-        }
-        return totalPoint;
+    private void initDb() {
+        mDiceRollingRepo.initDb();
     }
 
 
@@ -69,4 +55,46 @@ public class MainViewModel extends ViewModel implements LifecycleObserver, Async
     }
 
 
+    public LiveData<int[]> getDicePoints() {
+        return mDicePoints;
+    }
+
+    public LiveData<List<DiceRollingResult>> getDiceRollingResultList() {
+        if (mDiceRollingResultList == null) {
+            mDiceRollingResultList = new MutableLiveData<>();
+        }
+        return mDiceRollingResultList;
+    }
+
+
+    void rollDices() {
+        DiceRollingAsyncTask task = new DiceRollingAsyncTask(this, mDiceRollingRepo, DICE_COUNT);
+        task.execute();
+    }
+
+
+    @Override
+    public void processFinish(Object result) {
+        int[] diceList = (int[]) result;
+        mDicePoints.setValue(diceList);
+
+        int totalPoint = calculateTotalPoint(diceList);
+        mTotalPoint.setValue(totalPoint);
+
+        mDiceRollingRepo.getResult(this);
+    }
+
+    public int calculateTotalPoint(int[] diceList) {
+        int totalPoint = 0;
+        for (int dicePoint : diceList) {
+            totalPoint += dicePoint;
+        }
+        return totalPoint;
+    }
+
+
+    @Override
+    public void onResultLoaded(Object data) {
+        mDiceRollingResultList.postValue((List<DiceRollingResult>) data);
+    }
 }

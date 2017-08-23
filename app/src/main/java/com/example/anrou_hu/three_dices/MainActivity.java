@@ -4,12 +4,18 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleActivity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.arch.persistence.room.Room;
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import java.util.List;
 
 public class MainActivity extends LifecycleActivity implements View.OnClickListener {
 
@@ -18,7 +24,8 @@ public class MainActivity extends LifecycleActivity implements View.OnClickListe
     private TextView mThirdDice;
     private TextView mPoint;
     private Button mRoll;
-    private RecyclerView mResult;
+    private RecyclerView mFrequencyTable;
+    private FrequencyTableAdapter mAdapter;
 
     private MainViewModel mViewModel;
 
@@ -39,8 +46,15 @@ public class MainActivity extends LifecycleActivity implements View.OnClickListe
         mThirdDice = (TextView) findViewById(R.id.thirdDice);
         mPoint = (TextView) findViewById(R.id.point);
         mRoll = (Button) findViewById(R.id.roll);
-        mResult = (RecyclerView) findViewById(R.id.frequencyTable);
         mRoll.setOnClickListener(this);
+        initRecyclerView();
+    }
+
+    private void initRecyclerView() {
+        mAdapter = new FrequencyTableAdapter();
+        mFrequencyTable = (RecyclerView) findViewById(R.id.frequencyTable);
+        mFrequencyTable.setLayoutManager(new GridLayoutManager(this, 4, LinearLayoutManager.VERTICAL, false));
+        mFrequencyTable.setAdapter(mAdapter);
     }
 
 
@@ -58,13 +72,22 @@ public class MainActivity extends LifecycleActivity implements View.OnClickListe
                 updateDicePoints(ints);
             }
         });
+
+
+        mViewModel.getDiceRollingResultList().observe(this, new Observer<List<DiceRollingResult>>() {
+            @Override
+            public void onChanged(@Nullable List<DiceRollingResult> diceRollingResults) {
+                mAdapter.setResultList(diceRollingResults);
+                mAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void updateDicePoints(int[] dicePoints) {
         int dice1 = dicePoints[0];
         int dice2 = dicePoints[1];
         int dice3 = dicePoints[2];
-        int totalPoints = dice1 + dice2 + dice3; //do it in view model or Live data
+        int totalPoints = mViewModel.calculateTotalPoint(dicePoints); //do it in view model or Live data
         mFirstDice.setText(String.valueOf(dice1));
         mSecondDice.setText(String.valueOf(dice2));
         mThirdDice.setText(String.valueOf(dice3));
