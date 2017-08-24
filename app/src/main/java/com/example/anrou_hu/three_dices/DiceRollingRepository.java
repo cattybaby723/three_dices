@@ -1,7 +1,6 @@
 package com.example.anrou_hu.three_dices;
 
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Room;
 import android.support.annotation.NonNull;
 
