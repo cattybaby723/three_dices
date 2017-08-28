@@ -1,15 +1,17 @@
 package com.example.anrou_hu.three_dices;
 
 import android.app.Application;
+import android.arch.core.util.Function;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.OnLifecycleEvent;
-import android.support.annotation.Nullable;
+import android.arch.lifecycle.Transformations;
 import android.util.Log;
 
 import java.util.List;
@@ -25,7 +27,7 @@ public class MainViewModel extends AndroidViewModel implements LifecycleObserver
     private MutableLiveData<Integer> mTotalPoint = new MutableLiveData<>();
     private MutableLiveData<int[]> mDicePoints = new MutableLiveData<int[]>() {
     };
-    private MediatorLiveData<List<DiceRollingResult>> mDiceRollingResultList;
+    private LiveData<List<DiceRollingResult>> mDiceRollingResultList;
 
     private DiceRollingRepository mDiceRollingRepo;
 
@@ -35,10 +37,30 @@ public class MainViewModel extends AndroidViewModel implements LifecycleObserver
         mDiceRollingRepo = new DiceRollingRepository(getApplication());
 
         initDb();
+        connectDbLiveData();
     }
+
 
     private void initDb() {
         mDiceRollingRepo.initDb();
+    }
+
+    private void connectDbLiveData() {
+        LiveData<Boolean> databaseCreated = DatabaseCreator.getInstance().isDatabaseCreated();
+
+        mDiceRollingResultList = Transformations.switchMap(databaseCreated,
+            new Function<Boolean, LiveData<List<DiceRollingResult>>>() {
+                @Override
+                public LiveData<List<DiceRollingResult>> apply(Boolean isDatabaseCreated) {
+                    if (isDatabaseCreated) {
+                        return mDiceRollingRepo.getResult();
+                    } else {
+                        return new MutableLiveData<>();
+                    }
+                }
+            });
+
+
     }
 
 
@@ -85,14 +107,6 @@ public class MainViewModel extends AndroidViewModel implements LifecycleObserver
         mTotalPoint.setValue(totalPoint);
     }
 
-    public void observeDbData() {
-        mDiceRollingResultList.addSource(mDiceRollingRepo.getResult(), new Observer<List<DiceRollingResult>>() {
-            @Override
-            public void onChanged(@Nullable List<DiceRollingResult> diceRollingResults) {
-                mDiceRollingResultList.setValue(diceRollingResults);
-            }
-        });
-    }
 
     public int calculateTotalPoint(int[] diceList) {
         int totalPoint = 0;

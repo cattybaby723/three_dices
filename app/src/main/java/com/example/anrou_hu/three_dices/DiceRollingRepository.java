@@ -16,7 +16,6 @@ import java.util.concurrent.Executor;
 public class DiceRollingRepository implements Executor {
 
     private Application mApplication;
-    private AppDatabase mDatabase;
 
     public DiceRollingRepository(Application application) {
         mApplication = application;
@@ -24,14 +23,13 @@ public class DiceRollingRepository implements Executor {
     }
 
     public void initDb() {
-        mDatabase = Room.databaseBuilder(mApplication, AppDatabase.class, "database-name").build();
+        DatabaseCreator.getInstance().createDb(mApplication);
     }
 
 
-
     public LiveData<List<DiceRollingResult>> getResult() {
-
-        return mDatabase.diceRollingDao().load();
+        AppDatabase db = DatabaseCreator.getInstance().getDb();
+        return db.diceRollingDao().load();
     }
 
 
@@ -39,7 +37,8 @@ public class DiceRollingRepository implements Executor {
         execute(new Runnable() {
             @Override
             public void run() {
-                mDatabase.diceRollingDao().save(result);
+                AppDatabase db = DatabaseCreator.getInstance().getDb();
+                db.diceRollingDao().save(result);
             }
         });
 

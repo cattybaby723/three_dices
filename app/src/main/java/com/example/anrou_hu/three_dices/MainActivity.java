@@ -79,8 +79,6 @@ public class MainActivity extends LifecycleActivity implements View.OnClickListe
                 mAdapter.notifyDataSetChanged();
             }
         });
-
-        mViewModel.observeDbData();
     }
 
     private void updateDicePoints(int[] dicePoints) {
