@@ -1,4 +1,4 @@
-package com.example.anrou_hu.three_dices;
+package com.example.anrou_hu.three_dices.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
@@ -11,6 +11,11 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
+import com.example.anrou_hu.three_dices.model.AsyncTaskCallback;
+import com.example.anrou_hu.three_dices.model.DiceRollingAsyncTask;
+import com.example.anrou_hu.three_dices.db.DiceRollingRepository;
+import com.example.anrou_hu.three_dices.db.entity.DiceRollingResult;
 
 import java.util.List;
 
@@ -70,7 +75,7 @@ public class MainViewModel extends AndroidViewModel implements LifecycleObserver
     }
 
 
-    void rollDices() {
+    public void rollDices() {
         DiceRollingAsyncTask task = new DiceRollingAsyncTask(this, mDiceRollingRepo, DICE_COUNT);
         task.execute();
     }

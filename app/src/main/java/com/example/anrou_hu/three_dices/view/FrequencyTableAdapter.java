@@ -1,9 +1,12 @@
-package com.example.anrou_hu.three_dices;
+package com.example.anrou_hu.three_dices.view;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.anrou_hu.three_dices.R;
+import com.example.anrou_hu.three_dices.db.entity.DiceRollingResult;
 
 import java.util.ArrayList;
 import java.util.List;

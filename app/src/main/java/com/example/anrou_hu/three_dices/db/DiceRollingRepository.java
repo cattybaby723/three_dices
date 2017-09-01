@@ -1,9 +1,12 @@
-package com.example.anrou_hu.three_dices;
+package com.example.anrou_hu.three_dices.db;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Room;
 import android.support.annotation.NonNull;
+
+import com.example.anrou_hu.three_dices.db.AppDatabase;
+import com.example.anrou_hu.three_dices.db.entity.DiceRollingResult;
 
 import java.util.List;
 import java.util.concurrent.Executor;

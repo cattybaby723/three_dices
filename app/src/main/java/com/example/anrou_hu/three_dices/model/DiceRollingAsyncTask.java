@@ -1,6 +1,9 @@
-package com.example.anrou_hu.three_dices;
+package com.example.anrou_hu.three_dices.model;
 
 import android.os.AsyncTask;
+
+import com.example.anrou_hu.three_dices.db.DiceRollingRepository;
+import com.example.anrou_hu.three_dices.db.entity.DiceRollingResult;
 
 import java.util.Random;
 

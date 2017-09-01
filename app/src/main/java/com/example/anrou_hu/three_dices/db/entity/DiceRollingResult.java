@@ -1,4 +1,4 @@
-package com.example.anrou_hu.three_dices;
+package com.example.anrou_hu.three_dices.db.entity;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
@@ -8,7 +8,6 @@ import android.arch.persistence.room.PrimaryKey;
  * @author anrou_hu
  */
 
-//TODO: test indices later
 @Entity
 public class DiceRollingResult {
 
